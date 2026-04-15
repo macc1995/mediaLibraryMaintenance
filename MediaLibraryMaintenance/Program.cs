@@ -40,7 +40,6 @@ namespace MediaLibraryMaintenance
          if (args.Any(x => x.StartsWith("--apply")))
          {
             isWetRun = true;
-            ;
          }
 
          Console.WriteLine("Bonjour");
