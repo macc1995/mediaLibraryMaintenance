@@ -9,6 +9,8 @@ public interface IMediaFileInfo
 
    string FilePath { get; set; }
 
+   public long FileSize { get; set; }
+
    string VideoCodec { get; set; }
 
    #endregion

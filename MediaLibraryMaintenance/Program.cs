@@ -28,7 +28,10 @@ namespace MediaLibraryMaintenance
       static async Task Main(string[] args)
       {
          var prog = new Program();
-         args = ["D:\\Plex\\Movies"];
+         var list = args.ToList();
+         list.Add("D:\\Plex\\Movies");
+         list.Add("--apply");
+         args = list.ToArray();
          await prog.Run(args);
       }
 
