@@ -70,10 +70,10 @@ namespace MediaLibraryMaintenance.CoreModules.ReencodeMarker
          using var process = new Process { StartInfo = startInfo };
          process.Start();
 
-         var stdout =  process.StandardOutput.ReadToEnd();
-         var stderr =  process.StandardError.ReadToEnd();
+         var stdout = await process.StandardOutput.ReadToEndAsync();
+         var stderr = await process.StandardError.ReadToEndAsync();
 
-          process.WaitForExit();
+         await process.WaitForExitAsync();
 
          if (process.ExitCode != 0)
          {
@@ -152,11 +152,14 @@ namespace MediaLibraryMaintenance.CoreModules.ReencodeMarker
       #endregion
    }
 
-    public class MediaFileInfo
-    {
-        #region Public Properties
-        public string FilePath { get; set; }
-        public string? VideoCodec { get; set; }
-        #endregion
-    }
+   public class MediaFileInfo
+   {
+      #region Public Properties
+
+      public string FilePath { get; set; }
+
+      public string? VideoCodec { get; set; }
+
+      #endregion
+   }
 }

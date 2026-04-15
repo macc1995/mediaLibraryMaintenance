@@ -83,7 +83,7 @@ namespace MediaLibraryMaintenance
                Console.Clear();
                Console.WriteLine($"Executing module {selectedIndex + 1}...");
                var selectedModule = modules[selectedIndex];
-               selectedModule.Execute(args);
+               await selectedModule.Execute(args);
                // Execute the selected module
                break;
             }
