@@ -29,7 +29,7 @@ namespace MediaLibraryMaintenance
       {
          var prog = new Program();
          var list = args.ToList();
-         list.Add("D:\\Plex\\Movies");
+         list.Add("D:\\Plex");
          list.Add("--apply");
          args = list.ToArray();
          await prog.Run(args);

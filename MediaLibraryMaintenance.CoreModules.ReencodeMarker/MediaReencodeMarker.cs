@@ -88,8 +88,8 @@ namespace MediaLibraryMaintenance.CoreModules.ReencodeMarker
 
          foreach (var info in mediaFileInfos)
          {
-            if (info.VideoCodec != "hvec")
-            {
+            if (info.VideoCodec != "hevc")
+            {   
                Console.WriteLine($"File {info.FilePath} is not h265! Marking for re-encode...");
                filesToReencode.Add(info.ToString());
 
@@ -164,8 +164,8 @@ namespace MediaLibraryMaintenance.CoreModules.ReencodeMarker
 
          foreach (var info in mediaFileInfos)
          {
-            if (info.VideoCodec != "hvec")
-            {
+            if (info.VideoCodec != "hevc")
+            {   
                Console.WriteLine($"File {info.FilePath} is not h265!");
                count++;
 

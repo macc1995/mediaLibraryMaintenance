@@ -35,7 +35,7 @@ public class MediaFileInfo : IMediaFileInfo
 
    private string GetExpectedSizeFormatted()
    {
-      if (VideoCodec == "hvec")
+      if (VideoCodec == "hevc")
       {
          return FormatFileSize(FileSize);
       }
