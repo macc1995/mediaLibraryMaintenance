@@ -38,22 +38,30 @@ namespace MediaLibraryMaintenance.CoreModules.FileInformationProvider
             return new List<MediaFileInfo>();
          }
 
-         Console.WriteLine($"\nAnalyzing {files.Count} file(s)...\n");
+         Console.WriteLine($"\nAnalyzing {files.Count} file(s) in parallel...\n");
          
-         var infos = new List<MediaFileInfo>();
          var processedCount = 0;
+         var lockObj = new object();
 
-         foreach (var file in files)
+         var options = new ParallelOptions
          {
-            processedCount++;
-            Console.Write($"[{processedCount}/{files.Count}] Processing: {Path.GetFileName(file)}...");
-            
+            MaxDegreeOfParallelism = Environment.ProcessorCount
+         };
+
+         var infos = new List<MediaFileInfo>();
+
+         await Parallel.ForEachAsync(files, options, async (file, cancellationToken) =>
+         {
             var factory = new MediaFileInfoFactory();
             var info = await factory.Create(file);
-            infos.Add(info);
             
-            Console.WriteLine(" Done");
-         }
+            lock (lockObj)
+            {
+               infos.Add(info);
+               processedCount++;
+               Console.WriteLine($"[{processedCount}/{files.Count}] Processed: {Path.GetFileName(file)}");
+            }
+         });
 
          Console.WriteLine($"\nCompleted analyzing {infos.Count} file(s).\n");
          return infos;
