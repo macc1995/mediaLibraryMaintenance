@@ -30,16 +30,32 @@ namespace MediaLibraryMaintenance.CoreModules.FileInformationProvider
 
       public async Task<IEnumerable<IMediaFileInfo>> GetMediaFileInfos(IEnumerable<string> path)
       {
-         var files = mediaFileCollector.CollectMediaFiles(path);
-         var infos = new List<MediaFileInfo>();
-         foreach (var file in files)
+         var files = mediaFileCollector.CollectMediaFiles(path).ToList();
+         
+         if (files.Count == 0)
          {
-            var factory = new MediaFileInfoFactory();
-
-            var info = await factory.Create(file);
-            infos.Add(info);
+            Console.WriteLine("No media files found.");
+            return new List<MediaFileInfo>();
          }
 
+         Console.WriteLine($"\nAnalyzing {files.Count} file(s)...\n");
+         
+         var infos = new List<MediaFileInfo>();
+         var processedCount = 0;
+
+         foreach (var file in files)
+         {
+            processedCount++;
+            Console.Write($"[{processedCount}/{files.Count}] Processing: {Path.GetFileName(file)}...");
+            
+            var factory = new MediaFileInfoFactory();
+            var info = await factory.Create(file);
+            infos.Add(info);
+            
+            Console.WriteLine(" Done");
+         }
+
+         Console.WriteLine($"\nCompleted analyzing {infos.Count} file(s).\n");
          return infos;
       }
 

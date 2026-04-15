@@ -83,13 +83,18 @@ namespace MediaLibraryMaintenance.CoreModules.ReencodeMarker
       public void ExecuteRun(IEnumerable<IMediaFileInfo> mediaFileInfos)
       {
          var filesToReencode = new List<string>();
+         long totalOriginalSize = 0;
+         long totalExpectedSize = 0;
 
          foreach (var info in mediaFileInfos)
          {
             if (info.VideoCodec != "hvec")
             {
                Console.WriteLine($"File {info.FilePath} is not h265! Marking for re-encode...");
-               filesToReencode.Add(info.FilePath);
+               filesToReencode.Add(info.ToString());
+
+               totalOriginalSize += info.FileSize;
+               totalExpectedSize += (long)(info.FileSize * 0.25);
             }
          }
 
@@ -97,8 +102,22 @@ namespace MediaLibraryMaintenance.CoreModules.ReencodeMarker
          {
             try
             {
-               File.WriteAllLines(outputFile, filesToReencode);
+               var spaceSavings = totalOriginalSize - totalExpectedSize;
+               
+               var outputLines = new List<string>(filesToReencode);
+               outputLines.Add("");
+               outputLines.Add("=== Space Savings Estimate (using maximum 25% size) ===");
+               outputLines.Add($"Current total size: {FormatBytes(totalOriginalSize)}");
+               outputLines.Add($"Expected total size: {FormatBytes(totalExpectedSize)}");
+               outputLines.Add($"Space saved: {FormatBytes(spaceSavings)}");
+               
+               File.WriteAllLines(outputFile, outputLines);
                Console.WriteLine($"\nWrote {filesToReencode.Count} file(s) to {outputFile}");
+
+               Console.WriteLine("\nSpace savings estimate (using maximum 25% size):");
+               Console.WriteLine($"  Current total size: {FormatBytes(totalOriginalSize)}");
+               Console.WriteLine($"  Expected total size: {FormatBytes(totalExpectedSize)}");
+               Console.WriteLine($"  Space saved: {FormatBytes(spaceSavings)}");
             }
             catch (Exception ex)
             {
@@ -112,6 +131,25 @@ namespace MediaLibraryMaintenance.CoreModules.ReencodeMarker
       }
 
       #endregion
+
+      #region Methods
+
+      private string FormatBytes(long bytes)
+      {
+         if (bytes >= 1073741824)
+         {
+            return $"{bytes / 1073741824.0:F2} GB";
+         }
+
+         if (bytes >= 1048576)
+         {
+            return $"{bytes / 1048576.0:F2} MB";
+         }
+
+         return $"{bytes} bytes";
+      }
+
+      #endregion
    }
 
    internal class DryRunStrategy : IRunStrategy
@@ -121,23 +159,54 @@ namespace MediaLibraryMaintenance.CoreModules.ReencodeMarker
       public void ExecuteRun(IEnumerable<IMediaFileInfo> mediaFileInfos)
       {
          var count = 0;
+         long totalOriginalSize = 0;
+         long totalExpectedSize = 0;
+
          foreach (var info in mediaFileInfos)
          {
             if (info.VideoCodec != "hvec")
             {
                Console.WriteLine($"File {info.FilePath} is not h265!");
                count++;
+
+               totalOriginalSize += info.FileSize;
+               totalExpectedSize += (long)(info.FileSize * 0.25);
             }
          }
 
          if (count > 0)
          {
             Console.WriteLine($"\nFound {count} file(s) that would be marked for re-encoding.");
+
+            var spaceSavings = totalOriginalSize - totalExpectedSize;
+            Console.WriteLine("\nSpace savings estimate (using maximum 25% size):");
+            Console.WriteLine($"  Current total size: {FormatBytes(totalOriginalSize)}");
+            Console.WriteLine($"  Expected total size: {FormatBytes(totalExpectedSize)}");
+            Console.WriteLine($"  Space saved: {FormatBytes(spaceSavings)}");
          }
          else
          {
             Console.WriteLine("\nNo files need re-encoding.");
          }
+      }
+
+      #endregion
+
+      #region Methods
+
+      private string FormatBytes(long bytes)
+      {
+         if (bytes >= 1073741824)
+         {
+            return $"{bytes / 1073741824.0:F2} GB";
+         }
+
+         if (bytes >= 1048576)
+         {
+            return $"{bytes / 1048576.0:F2} MB";
+         }
+
+         return $"{bytes} bytes";
       }
 
       #endregion
