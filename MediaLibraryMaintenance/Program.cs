@@ -11,6 +11,12 @@ namespace MediaLibraryMaintenance
 
    internal class Program
    {
+      #region Constants and Fields
+
+      private bool isWetRun;
+
+      #endregion
+
       #region Properties
 
       [ImportMany] private IEnumerable<ILibraryHandlingModule>? LibraryHandlingModules { get; set; }
@@ -28,6 +34,12 @@ namespace MediaLibraryMaintenance
 
       private async Task Run(string[] args)
       {
+         if (args.Any(x => x.StartsWith("--apply")))
+         {
+            isWetRun = true;
+            ;
+         }
+
          Console.WriteLine("Bonjour");
          Console.WriteLine();
          Console.WriteLine("Use --apply to wet run");
@@ -46,6 +58,11 @@ namespace MediaLibraryMaintenance
          if (LibraryHandlingModules is null || !LibraryHandlingModules.Any())
          {
             return;
+         }
+
+         foreach (var libraryHandlingModule in LibraryHandlingModules)
+         {
+            libraryHandlingModule.Init(isWetRun);
          }
 
          var modules = LibraryHandlingModules.OrderBy(x => x.MenuOrder).ToList();

@@ -15,6 +15,8 @@ namespace MediaLibraryMaintenance.Interfaces
 
       Task Execute(string[] args);
 
+      void Init(bool isWetRun);
+
       void PrintMenuItem();
 
       #endregion
