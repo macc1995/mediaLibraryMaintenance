@@ -41,12 +41,24 @@ namespace MediaLibraryMaintenance.CoreModules.ReencodeMarker
       {
          var folders = args.Where(x => !x.StartsWith("--"));
          var files = mediaFileCollector.CollectMediaFiles(folders);
+         var mediaFileInfos = new List<MediaFileInfo>();
+
          foreach (var file in files)
          {
-            var codec = await GetVideoCodecAsync(file);
-            if (codec != null)
+            var mediaFileInfo = await GetVideoCodecAsync(file);
+            if (mediaFileInfo != null)
             {
-               Console.WriteLine(codec);
+               mediaFileInfos.Add(mediaFileInfo);
+            }
+         }
+
+         var groups = mediaFileInfos.GroupBy(x => x.VideoCodec);
+         foreach (var group in groups)
+         {
+            Console.WriteLine($"---------------{group.Key}------------");
+            foreach (var mediaFileInfo in group)
+            {
+               Console.WriteLine(Path.GetFileName(mediaFileInfo.FilePath));
             }
          }
       }
@@ -55,7 +67,7 @@ namespace MediaLibraryMaintenance.CoreModules.ReencodeMarker
 
       #region Methods
 
-      private async Task<string?> GetVideoCodecAsync(string filePath)
+      private async Task<MediaFileInfo?> GetVideoCodecAsync(string filePath)
       {
          var startInfo = new ProcessStartInfo
          {
@@ -94,12 +106,13 @@ namespace MediaLibraryMaintenance.CoreModules.ReencodeMarker
 
             var firstStream = streams[0];
 
-            if (firstStream.TryGetProperty("codec_name", out var codecName))
+            string? codecName = null;
+            if (firstStream.TryGetProperty("codec_name", out var codecNameElement))
             {
-               return codecName.GetString();
+               codecName = codecNameElement.GetString();
             }
 
-            return null;
+            return new MediaFileInfo { FilePath = filePath, VideoCodec = codecName };
          }
          catch
          {
