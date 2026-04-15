@@ -4,10 +4,11 @@
 namespace MediaLibraryMaintenance.CoreModules.ReencodeMarker
 {
    using System.ComponentModel.Composition;
-
-   using MediaLibraryMaintenance.Interfaces;
-
-   [Export(typeof(ILibraryHandlingModule))]
+    using System.Diagnostics;
+    using System.Text.Json;
+    using MediaLibraryMaintenance.Interfaces;
+    
+    [Export(typeof(ILibraryHandlingModule))]
    public class MediaReencodeMarker : ILibraryHandlingModule
    {
       #region Constants and Fields
@@ -35,16 +36,78 @@ namespace MediaLibraryMaintenance.CoreModules.ReencodeMarker
          Console.WriteLine("Mark media for re-encoding");
       }
 
-      public void Execute(string[] args)
-      {
-         var folders = args.Where(x => !x.StartsWith("--"));
-         var files = mediaFileCollector.CollectMediaFiles(folders);
-      }
+      
 
-      #endregion
-   }
+        async Task ILibraryHandlingModule.Execute(string[] args)
+        {
+            var folders = args.Where(x => !x.StartsWith("--"));
+            var files = mediaFileCollector.CollectMediaFiles(folders);
+            foreach (var file in files)
+            {
+                var codec = await GetVideoCodecAsync(file);
+                if (codec != null)
+                {
+                    Console.WriteLine(codec);
+                }
+            }
+        }
 
-   public class MediaFileCollector : IMediaFileCollector
+        private  async Task<string?> GetVideoCodecAsync(string filePath)
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "ffprobe",
+                Arguments = $"-v error -select_streams v:0 -show_entries stream=codec_name -of json \"{filePath}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using var process = new Process { StartInfo = startInfo };
+            process.Start();
+
+            var stdout = await process.StandardOutput.ReadToEndAsync();
+            var stderr = await process.StandardError.ReadToEndAsync();
+
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode != 0)
+            {
+                Console.WriteLine($"ffprobe failed for: {filePath}");
+                Console.WriteLine(stderr);
+                return null;
+            }
+
+            try
+            {
+                using var doc = JsonDocument.Parse(stdout);
+
+                if (!doc.RootElement.TryGetProperty("streams", out var streams) || (streams.ValueKind != JsonValueKind.Array)
+                                                                                || (streams.GetArrayLength() == 0))
+                {
+                    return null;
+                }
+
+                var firstStream = streams[0];
+
+                if (firstStream.TryGetProperty("codec_name", out var codecName))
+                {
+                    return codecName.GetString();
+                }
+
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        #endregion
+    }
+    [Export(typeof(IMediaFileCollector))]
+    public class MediaFileCollector : IMediaFileCollector
    {
       #region Constants and Fields
 

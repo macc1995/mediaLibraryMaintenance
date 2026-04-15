@@ -21,62 +21,13 @@ namespace MediaLibraryMaintenance
 
       #region Methods
 
-      private static async Task<string?> GetVideoCodecAsync(string filePath)
-      {
-         var startInfo = new ProcessStartInfo
-         {
-            FileName = "ffprobe",
-            Arguments = $"-v error -select_streams v:0 -show_entries stream=codec_name -of json \"{filePath}\"",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-         };
-
-         using var process = new Process { StartInfo = startInfo };
-         process.Start();
-
-         var stdout = await process.StandardOutput.ReadToEndAsync();
-         var stderr = await process.StandardError.ReadToEndAsync();
-
-         await process.WaitForExitAsync();
-
-         if (process.ExitCode != 0)
-         {
-            Console.WriteLine($"ffprobe failed for: {filePath}");
-            Console.WriteLine(stderr);
-            return null;
-         }
-
-         try
-         {
-            using var doc = JsonDocument.Parse(stdout);
-
-            if (!doc.RootElement.TryGetProperty("streams", out var streams) || (streams.ValueKind != JsonValueKind.Array)
-                                                                            || (streams.GetArrayLength() == 0))
-            {
-               return null;
-            }
-
-            var firstStream = streams[0];
-
-            if (firstStream.TryGetProperty("codec_name", out var codecName))
-            {
-               return codecName.GetString();
-            }
-
-            return null;
-         }
-         catch
-         {
-            return null;
-         }
-      }
+      
 
       static async Task Main(string[] args)
       {
          var prog = new Program();
-         await prog.Run(args);
+            args = new[] { "D:\\Plex\\Movies" }.ToArray();
+            await prog.Run(args);
       }
 
       private async Task Run(string[] args)
