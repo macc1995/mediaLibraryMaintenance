@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaLibraryMaintenance.Int
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaLibraryMaintenance.CoreModules.ReencodeMarker", "MediaLibraryMaintenance.CoreModules.ReencodeMarker\MediaLibraryMaintenance.CoreModules.ReencodeMarker.csproj", "{6F73A2B3-35EC-44B2-9E47-1A5A3609C248}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaLibraryMaintenance.CoreModules.FileInformationProvider", "MediaLibraryMaintenance.CoreModules.FileInformationProvider\MediaLibraryMaintenance.CoreModules.FileInformationProvider.csproj", "{6617608F-3097-42E4-B9FC-C43640FD59A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{6F73A2B3-35EC-44B2-9E47-1A5A3609C248}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F73A2B3-35EC-44B2-9E47-1A5A3609C248}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F73A2B3-35EC-44B2-9E47-1A5A3609C248}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6617608F-3097-42E4-B9FC-C43640FD59A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6617608F-3097-42E4-B9FC-C43640FD59A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6617608F-3097-42E4-B9FC-C43640FD59A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6617608F-3097-42E4-B9FC-C43640FD59A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

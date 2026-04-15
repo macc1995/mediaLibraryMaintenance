@@ -5,9 +5,7 @@ namespace MediaLibraryMaintenance
 {
    using System.ComponentModel.Composition;
    using System.ComponentModel.Composition.Hosting;
-   using System.Diagnostics;
    using System.Reflection;
-   using System.Text.Json;
 
    using MediaLibraryMaintenance.Interfaces;
 
@@ -15,19 +13,17 @@ namespace MediaLibraryMaintenance
    {
       #region Properties
 
-      [ImportMany] private IEnumerable<ILibraryHandlingModule> LibraryHandlingModules { get; set; }
+      [ImportMany] private IEnumerable<ILibraryHandlingModule>? LibraryHandlingModules { get; set; }
 
       #endregion
 
       #region Methods
 
-      
-
       static async Task Main(string[] args)
       {
          var prog = new Program();
-            args = new[] { "D:\\Plex\\Movies" }.ToArray();
-            await prog.Run(args);
+         args = ["D:\\Plex\\Movies"];
+         await prog.Run(args);
       }
 
       private async Task Run(string[] args)
@@ -38,9 +34,19 @@ namespace MediaLibraryMaintenance
          Console.WriteLine();
 
          var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+         if (path is null)
+         {
+            return;
+         }
+
          var catalog = new DirectoryCatalog(path);
          var container = new CompositionContainer(catalog);
          container.ComposeParts(this);
+
+         if (LibraryHandlingModules is null || !LibraryHandlingModules.Any())
+         {
+            return;
+         }
 
          var modules = LibraryHandlingModules.OrderBy(x => x.MenuOrder).ToList();
          var selectedIndex = 0;

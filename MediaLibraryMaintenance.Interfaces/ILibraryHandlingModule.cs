@@ -9,11 +9,11 @@ namespace MediaLibraryMaintenance.Interfaces
 
       int MenuOrder { get; }
 
-        #endregion
+      #endregion
 
-        #region Public Methods and Operators
+      #region Public Methods and Operators
 
-        Task Execute(string[] args);
+      Task Execute(string[] args);
 
       void PrintMenuItem();
 
